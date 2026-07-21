@@ -491,6 +491,11 @@ static torch::autograd::variable_list backward(torch::autograd::AutogradContext*
         const scalar_t* p_ptr = ( rank >= 1 ) ? p_expand.data_ptr<scalar_t>() : nullptr;
         const scalar_t* t_ptr = ( rank >= 2 ) ? t_expand.data_ptr<scalar_t>() : nullptr;
 
+        // NEW — original, non-expanded multipoles:
+        const scalar_t* q_orig_ptr = q.data_ptr<scalar_t>();
+        const scalar_t* p_orig_ptr = ( rank >= 1 ) ? p.data_ptr<scalar_t>() : nullptr;
+        const scalar_t* t_orig_ptr = ( rank >= 2 ) ? t.data_ptr<scalar_t>() : nullptr;
+
         // 3. Spread charges / multipoles
         if (rank == 0) {
             spread_q_kernel<scalar_t, 0><<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(
@@ -542,17 +547,17 @@ static torch::autograd::variable_list backward(torch::autograd::AutogradContext*
         scalar_t* grid_Phi_ptr_forward = saved[8].data_ptr<scalar_t>();
         if (rank == 0) {
             interpolate_kernel_with_field<scalar_t, 0><<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(
-                grid_Phi_ptr_backward, grid_Phi_ptr_forward, coords_ptr, box_ptr, q_ptr, p_ptr, t_ptr,
+                grid_Phi_ptr_backward, grid_Phi_ptr_forward, coords_ptr, box_ptr, q_orig_ptr, p_orig_ptr, t_orig_ptr,
                 grad_outputs[1].data_ptr<scalar_t>(), grad_outputs[2].data_ptr<scalar_t>(),
                 q_grad_ptr, p_grad_ptr, t_grad_ptr, coords_grad_ptr, alpha_val, N, K1, K2, K3);
         } else if (rank == 1) {
             interpolate_kernel_with_field<scalar_t, 1><<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(
-                grid_Phi_ptr_backward, grid_Phi_ptr_forward, coords_ptr, box_ptr, q_ptr, p_ptr, t_ptr,
+                grid_Phi_ptr_backward, grid_Phi_ptr_forward, coords_ptr, box_ptr, q_orig_ptr, p_orig_ptr, t_orig_ptr,
                 grad_outputs[1].data_ptr<scalar_t>(), grad_outputs[2].data_ptr<scalar_t>(),
                 q_grad_ptr, p_grad_ptr, t_grad_ptr, coords_grad_ptr, alpha_val, N, K1, K2, K3);
         } else {
             interpolate_kernel_with_field<scalar_t, 2><<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(
-                grid_Phi_ptr_backward, grid_Phi_ptr_forward, coords_ptr, box_ptr, q_ptr, p_ptr, t_ptr,
+                grid_Phi_ptr_backward, grid_Phi_ptr_forward, coords_ptr, box_ptr, q_orig_ptr, p_orig_ptr, t_orig_ptr,
                 grad_outputs[1].data_ptr<scalar_t>(), grad_outputs[2].data_ptr<scalar_t>(),
                 q_grad_ptr, p_grad_ptr, t_grad_ptr, coords_grad_ptr, alpha_val, N, K1, K2, K3);
         }
