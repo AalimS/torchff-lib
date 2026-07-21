@@ -47,6 +47,17 @@ TORCH_LIBRARY_FRAGMENT(torchff, m) {
       "Tensor j_cf_bb, Tensor j_cf_angle, Scalar ene_coupling_min"
     ") -> (Tensor, Tensor)"
   );
+  m.def("cmm_fd_angle("
+      "Tensor coords, Tensor angles, "
+      "Tensor theta_0, Tensor k_theta, "
+      "Tensor r_eq_1, Tensor r_eq_2, "
+      "Tensor k_bb, Tensor k_ba_1, Tensor k_ba_2, "
+      "Tensor j_cf_bb, Tensor j_cf_angle, "
+      "Tensor dmu_dtheta, Tensor d2mu_dtheta2, "
+      "Tensor efield, "
+      "Scalar ene_coupling_min"
+      ") -> (Tensor, Tensor)"
+  );
   m.def(
     "compute_cmm_polarization_real_space("
       "Tensor coords, Tensor box, Tensor pairs, Tensor pairs_excl, Tensor b_elec_ij, Tensor vec_in, "
